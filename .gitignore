@@ -1,0 +1,8 @@
+Debug/
+Release/
+platform.txt
+__vm/
+.vs/
+*.vcx*
+*.bin
+*.sln

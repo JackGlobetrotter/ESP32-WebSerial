@@ -1,0 +1,148 @@
+<HTML>
+
+<HEAD>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'>
+
+    <style>
+        body {
+            margin: 1REM !important;
+        }
+    </style>
+    <TITLE>Firmware Update</TITLE>
+    <script>
+        function bs_input_file() {
+            $(".input-file").before(
+                function () {
+                    if (!$(this).prev().hasClass('input-ghost')) {
+                        var element = $("<input id='updateFile' type='file' class='input-ghost' accept='application/octet-stream' style='visibility:hidden; height:0'>");
+                        element.attr("name", $(this).attr("name"));
+                        element.change(function () {
+                            element.next(element).find('input').val((element.val()).split('\\').pop());
+                            var type = element.next(element).find('input').val().toUpperCase().includes("SPIFFS") ?
+                                "SPIFFS" : "FLASH"
+                            $(`input:radio[id ="type_${type}"]`).prop("checked", true)
+                        });
+                        $(this).find("button.btn-choose").click(function () {
+                            element.click();
+                        });
+                        $(this).find("button.btn-reset").click(function () {
+                            element.val(null);
+                            $(this).parents(".input-file").find('input').val('');
+                        });
+                        $(this).find('input').css("cursor", "pointer");
+                        $(this).find('input').mousedown(function () {
+                            $(this).parents('.input-file').prev().click();
+                            return false;
+                        });
+                        return element;
+                    }
+                }
+            );
+        }
+        $(function () {
+            bs_input_file();
+        });
+    </script>
+</HEAD>
+
+<BODY>
+
+
+
+
+    <form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
+        <div class='form-group row'>
+            <div class='col-sm-4 col-form-label' style='float: left!important;'>
+
+
+                <!-- COMPONENT START -->
+                <div class='form-group'>
+                    <div class='input-group input-file' name='Fichier1'>
+                        <span class='input-group-btn'>
+                            <button class='btn btn-default btn-choose' type='button'>Chose</button>
+                        </span>
+                        <input type='text' class='form-control' placeholder='Select a file...' />
+                        <span class='input-group-btn'>
+                            <button class='btn btn-warning btn-reset' type='button'>Reset</button>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+            <div class='col-sm-2 col-form-label'>
+                <input class='btn btn-success' type='submit' id='saveBTN' value='Update'>
+            </div>
+        </div>
+        <div class='form-group row'>
+            <div class='col-sm-4 col-form-label' id="type">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" checked type="radio" name="typeOptions" id="type_FLASH"
+                        value="FLASH">
+                    <label class="form-check-label" for="inlineRadio1">FLASH</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="typeOptions" id="type_SPIFFS" value="SPIFFS">
+                    <label class="form-check-label" for="inlineRadio2">SPIFFS</label>
+                </div>
+            </div>
+        </div>
+        <div class='form-group row'>
+            <div class='col-sm-4 col-form-label'>
+                <div id='prg'>progress: 0%</div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+
+        $('form').submit(function (e) {
+            var vidFileLength = $('#updateFile')[0].files.length;
+            if (vidFileLength === 0) {
+                alert('No File selected.');
+                return;
+            }
+
+            $('#saveBTN').hide();
+            e.preventDefault();
+            var form = $('#upload_form')[0];
+            var data = new FormData(form);
+            var type = $('input:radio[name ="typeOptions"]:checked').val() !== "" ?
+                $('input:radio[name ="typeOptions"]:checked').val() : "FLASH";
+
+            $.ajax({
+                url: '/update',
+                type: 'POST',
+                headers: { type },
+                data: data,
+                contentType: false,
+                processData: false,
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function (evt) {
+                        if (evt.lengthComputable) {
+                            var per = evt.loaded / evt.total;
+                            $('#prg').html('progress: ' + Math.round(per * 100) + '%');
+                            if (Math.round(per * 100) == 100) {
+                                $('#prg').html('Update Finished!');
+                                setTimeout(function () { document.location.href = '/'; }, 3000);
+
+                            }
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function (d, s) {
+                    console.log('success!');
+                    document.body.innerhtml = '<p>Update succesfull!!!</p>';
+                    setTimeout(function () { document.location.href = '/'; }, 3000);
+                },
+                error: function (a, b, c) {
+                }
+            });
+        });
+    </script>
+</BODY>
+
+</HTML>

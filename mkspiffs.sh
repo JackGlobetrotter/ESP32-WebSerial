@@ -1,0 +1,1 @@
+mkspiffs -c data -s 1507328 spiffs.bin

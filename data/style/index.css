@@ -1,0 +1,59 @@
+body {
+    font-family: helvetica, sans-serif, arial;
+    font-size: 1em;
+    color: #111;
+}
+
+h1 {
+    text-align: center;
+}
+
+#terminal-container {
+    width: 800px;
+    height: 450px;
+    margin: 0 auto;
+    padding: 2px;
+}
+
+p {
+    font-size: 0.9em;
+    font-style: italic
+}
+
+#option-container {
+    display: flex;
+    justify-content: center;
+}
+
+.option-group {
+    display: inline-block;
+    padding-left: 20px;
+    vertical-align: top;
+}
+
+pre {
+    display: block;
+    padding: 9.5px;
+    font-size: 13px;
+    color: #c7254e;
+    background-color: #f9f2f4;
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.dot {
+    height: 25px;
+    width: 25px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.vertical-center {
+    min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+    min-height: 100vh; /* These two lines are counted as one :-)       */
+  
+    display: flex;
+    align-items: center;
+  }
